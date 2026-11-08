@@ -45,3 +45,10 @@ jobs:
           body: Versión de prueba para instalar en Android.
           files: trasvase.apk
           make_latest: true
+
+      - name: Usar la última versión del juego
+        run: |
+          curl -fsSL -H "Accept: application/vnd.github.raw" \
+            https://api.github.com/repos/Neocloud7/Trasvase/contents/index.html \
+            -o app/src/main/assets/index.html
+     
