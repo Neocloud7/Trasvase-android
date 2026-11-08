@@ -4,15 +4,18 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Descomprimir el proyecto si se subió como zip
+      - name: Descomprimir el proyecto
         run: |
-          if [ -f proyecto.zip ]; then unzip -o proyecto.zip -d . ; fi
+          if [ -f proyecto.zip ]; then unzip -n proyecto.zip -d . ; fi
 
       - uses: actions/setup-java@v4
         with:
@@ -26,7 +29,19 @@ jobs:
       - name: Compilar
         run: gradle assembleDebug --no-daemon --stacktrace
 
+      - name: Preparar el archivo
+        run: cp app/build/outputs/apk/debug/app-debug.apk trasvase.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: trasvase-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: trasvase.apk
+
+      - name: Publicar descarga
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: prueba-${{ github.run_number }}
+          name: Trasvase (prueba ${{ github.run_number }})
+          body: Versión de prueba para instalar en Android.
+          files: trasvase.apk
+          make_latest: true
